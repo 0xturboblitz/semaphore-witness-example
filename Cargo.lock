@@ -869,6 +869,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a3cf7c11c38cb994f3d40e8a8cde3bbd1f72a435e4c49e85d6553d8312306152"
 
 [[package]]
+name = "semaphore-depth-config"
+version = "0.1.0"
+source = "git+https://github.com/worldcoin/semaphore-rs.git#08b9fd7a9d92260d2ed3d1031db4a90fa7408777"
+
+[[package]]
+name = "semaphore-depth-macros"
+version = "0.1.0"
+source = "git+https://github.com/worldcoin/semaphore-rs.git#08b9fd7a9d92260d2ed3d1031db4a90fa7408777"
+dependencies = [
+ "itertools",
+ "proc-macro2",
+ "quote",
+ "semaphore-depth-config",
+ "syn 2.0.38",
+]
+
+[[package]]
 name = "semver"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1114,7 +1131,8 @@ dependencies = [
 
 [[package]]
 name = "witness"
-version = "0.1.0"
+version = "0.2.0"
+source = "git+https://github.com/philsippl/circom-witness-rs#fed7d591a4a6adfde371d3dac3fde23d755bcd39"
 dependencies = [
  "ark-bn254",
  "ark-ff 0.4.2",
@@ -1135,7 +1153,10 @@ dependencies = [
 name = "wtest"
 version = "0.1.0"
 dependencies = [
+ "once_cell",
  "ruint",
+ "semaphore-depth-config",
+ "semaphore-depth-macros",
  "serde",
  "serde_json",
  "witness",

@@ -1,9 +1,23 @@
 use std::{time::Instant, collections::HashMap};
+use semaphore_depth_config::{get_depth_index, get_supported_depth_count};
+use semaphore_depth_macros::array_for_depths;
+use witness::{Graph, init_graph};
+use once_cell::sync::Lazy;
 
 use ruint::aliases::U256;
 
+const GRAPH_BYTES: &[u8] = include_bytes!("../graph.bin");
 
-const BYTES: &[u8] = include_bytes!("../graph.bin");
+const DEPTH: usize = 16;
+
+static WITHESS_GRAPH: [Lazy<Graph>; get_supported_depth_count()] = array_for_depths!(|depth| {
+    Lazy::new(|| init_graph(graph(depth)).expect("Failed to initialize Graph"))
+});
+
+pub fn graph(depth: usize) -> &'static [u8] {
+    let index = get_depth_index(depth).unwrap_or_else(|| panic!("depth {depth} is not supported"));
+    &GRAPH_BYTES
+}
 
 fn main() {
     let data = r#"
@@ -52,13 +66,16 @@ fn main() {
 
     let inputs: HashMap<String, Vec<U256>> = serde_json::from_str(data).unwrap();
 
+    let graph = &WITHESS_GRAPH
+        [get_depth_index(DEPTH).unwrap_or_else(|| panic!("Depth {DEPTH} not supported"))];
+
     let now = Instant::now();
     for _ in 0..10 {
-        let _ = witness::calculate_witness(inputs.clone(), &BYTES).unwrap();
+        let _ = witness::calculate_witness(inputs.clone(), graph).unwrap();
     }
     eprintln!("Calculation took: {:?}", now.elapsed() / 10);
 
-    let witness = witness::calculate_witness(inputs, &BYTES).unwrap();
+    let witness = witness::calculate_witness(inputs, graph).unwrap();
     for i in 0..witness.len() {
         println!("{:?}", witness[i]);
     }
